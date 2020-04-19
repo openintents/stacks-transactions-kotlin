@@ -1,4 +1,4 @@
-package org.openintents.blockstack.stackstransactions
+package org.openintents.blockstack.stackstransactions.signature
 
 import org.kethereum.crypto.getCompressedPublicKey
 import org.kethereum.crypto.toECKeyPair

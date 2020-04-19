@@ -1,4 +1,6 @@
-package org.openintents.blockstack.stackstransactions
+package org.openintents.blockstack.stackstransactions.signature
+
+import org.openintents.blockstack.stackstransactions.signature.PrivateKey
 
 actual class PrivateKey actual constructor(key: String) {
   actual fun toPublicKeyString(): String {

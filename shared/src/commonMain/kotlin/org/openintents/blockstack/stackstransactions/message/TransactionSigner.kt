@@ -1,7 +1,7 @@
 package org.blockstack.android.stackstransactions
 
 import org.blockstack.android.stackstransactions.message.StacksTransaction
-import org.openintents.blockstack.stackstransactions.PrivateKey
+import org.openintents.blockstack.stackstransactions.signature.PrivateKey
 
 class TransactionSigner(val transaction: StacksTransaction) {
     var sigHash:String = transaction.signBegin()

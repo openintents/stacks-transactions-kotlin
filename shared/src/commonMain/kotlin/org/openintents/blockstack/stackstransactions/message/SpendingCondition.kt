@@ -5,8 +5,8 @@ import org.komputing.kbignumbers.biginteger.BigInteger
 import org.komputing.kbignumbers.biginteger.extensions.toHexStringZeroPadded
 import org.komputing.khex.extensions.hexToByteArray
 import org.komputing.khex.extensions.toNoPrefixHexString
-import org.openintents.blockstack.stackstransactions.PrivateKey
-import org.openintents.blockstack.stackstransactions.signMessageHash
+import org.openintents.blockstack.stackstransactions.signature.PrivateKey
+import org.openintents.blockstack.stackstransactions.signature.signMessageHash
 
 class MessageSignature(val signature: String?) : StacksMessageCodec {
     override fun serialize(): ByteArray {
@@ -73,7 +73,11 @@ open class SpendingCondition(val addressHashMode: AddressHashMode?,
 
         fun nextSignature(curSigHash: String, authType: AuthType, feeRate: BigInteger, nonce: BigInteger, privateKey: PrivateKey): NextSignatureData {
             val sigHashPreSign = this.makeSigHashPreSign(curSigHash, authType, feeRate, nonce)
-            val signatureString = signMessageHash(sigHashPreSign.hexToByteArray(), privateKey)
+            val signatureString =
+                signMessageHash(
+                    sigHashPreSign.hexToByteArray(),
+                    privateKey
+                )
             val publicKey = privateKey.toPublicKeyString()
            val nextSigHash = this.makeSigHashPostSign(sigHashPreSign, publicKey, signatureString)
 

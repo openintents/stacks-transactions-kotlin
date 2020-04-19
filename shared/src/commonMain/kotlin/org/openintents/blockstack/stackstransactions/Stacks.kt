@@ -3,6 +3,7 @@ package org.openintents.blockstack.stackstransactions
 import org.blockstack.android.stackstransactions.TransactionSigner
 import org.blockstack.android.stackstransactions.message.*
 import org.komputing.kbignumbers.biginteger.BigInteger
+import org.openintents.blockstack.stackstransactions.signature.PrivateKey
 
 object Stacks {
   fun makeSTXTokenTransfer(
@@ -27,7 +28,9 @@ object Stacks {
     val payload = TokenTransferPayload(recipientAddress, amount, normalizedOptions.memo)
 
     val addressHashMode = AddressHashMode.SerializeP2PKH
-    val privKey = PrivateKey(senderKey.let { if (it.length == 66) it.substring(0, 64) else it })
+    val privKey =
+        PrivateKey(
+            senderKey.let { if (it.length == 66) it.substring(0, 64) else it })
     val spendingCondition = SingleSigSpendingCondition(
       addressHashMode,
       privKey.toPublicKeyString(),
@@ -69,7 +72,9 @@ object Stacks {
     var payload = SmartContractPayload(contractName, codeBody)
 
     val addressHashMode = AddressHashMode.SerializeP2PKH
-    val privKey = PrivateKey(senderKey.let { if (it.length == 66) it.substring(0, 64) else it })
+    val privKey =
+        PrivateKey(
+            senderKey.let { if (it.length == 66) it.substring(0, 64) else it })
     val spendingCondition = SingleSigSpendingCondition(
       addressHashMode,
       privKey.toPublicKeyString(),
@@ -121,7 +126,9 @@ object Stacks {
 
 
     val addressHashMode = AddressHashMode.SerializeP2PKH
-    val privKey = PrivateKey(senderKey.let { if (it.length == 66) it.substring(0, 64) else it })
+    val privKey =
+        PrivateKey(
+            senderKey.let { if (it.length == 66) it.substring(0, 64) else it })
     val spendingCondition = SingleSigSpendingCondition(
       addressHashMode,
       privKey.toPublicKeyString(),

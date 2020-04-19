@@ -1,4 +1,4 @@
-package org.openintents.blockstack.stackstransactions
+package org.openintents.blockstack.stackstransactions.signature
 
 expect class PrivateKey(key: String) {
   fun toPublicKeyString(): String

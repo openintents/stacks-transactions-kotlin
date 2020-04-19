@@ -1,7 +1,7 @@
 package org.blockstack.android.stackstransactions.message
 
 import org.komputing.khex.extensions.hexToByteArray
-import org.openintents.blockstack.stackstransactions.PrivateKey
+import org.openintents.blockstack.stackstransactions.signature.PrivateKey
 
 class StacksTransaction(val version: TransactionVersion?,
                         val chainId: String?,
