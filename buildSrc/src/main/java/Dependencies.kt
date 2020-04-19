@@ -1,5 +1,6 @@
 object Versions {
-    val min_sdk = 21
+  val kethereum = "0.76.1"
+  val min_sdk = 21
     val target_sdk = 29
     val compile_sdk = 29
 

@@ -26,9 +26,6 @@ allprojects {
         maven(url = "https://kotlin.bintray.com/kotlinx")
         maven(url = "https://dl.bintray.com/touchlabpublic/kotlin")
         maven(url = "https://oss.sonatype.org/content/repositories/snapshots/")
+        maven(url = "https://jitpack.io")
     }
-}
-
-tasks.register("clean", Delete::class) {
-    delete(rootProject.buildDir)
 }
