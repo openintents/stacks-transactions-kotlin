@@ -2,7 +2,6 @@ package org.openintents.blockstack.stackstransactions
 
 import org.blockstack.android.stackstransactions.message.ClarityType
 
-
 sealed class ClarityValue
 
 sealed class BooleanCV(type: ClarityType) : ClarityValue()

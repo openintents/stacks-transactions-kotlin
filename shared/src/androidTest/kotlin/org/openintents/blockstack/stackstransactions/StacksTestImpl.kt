@@ -1,3 +1,10 @@
 package org.openintents.blockstack.stackstransactions
 
-internal class StacksTestImpl : StacksTest()
+import org.junit.Test
+
+internal class StacksTestImpl  {
+    @Test
+    fun makeOnAndroid() {
+        println("make on Android")
+    }
+}

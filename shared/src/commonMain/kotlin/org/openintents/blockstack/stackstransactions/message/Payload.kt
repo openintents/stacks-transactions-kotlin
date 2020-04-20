@@ -51,6 +51,20 @@ open class Payload(
         )
       }
 
+      PayloadType.SmartContract -> {
+        if (contractName == null) {
+          notSpecifiedError("contractName")
+        }
+        if (codeBody == null) {
+          notSpecifiedError("codeBoy")
+        }
+        return byteArrayOf(
+          payloadType.type,
+          *contractName.serialize(),
+          *codeBody.serialize()
+        )
+      }
+
       else -> {
         throw Error("Unsupported payload type")
       }

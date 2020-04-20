@@ -25,8 +25,8 @@ enum class AnchorMode(val mode: Byte) {
 }
 
 enum class TransactionVersion(val version: Byte) {
-    Mainnet(0x00),
-    Testnet(-0x7F);
+    Mainnet(0),
+    Testnet(128.toByte());
 
     companion object {
         private val values = values()

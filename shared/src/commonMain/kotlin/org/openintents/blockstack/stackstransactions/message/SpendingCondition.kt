@@ -39,7 +39,8 @@ open class SpendingCondition(val addressHashMode: AddressHashMode?,
                 *nonce?.toByteArray()?.copyOf(8) ?: error("'nonce' not specified"),
                 *feeRate?.toByteArray()?.copyOf(8) ?: error("'feeRate' not specified"),
                 pubKeyEncoding?.encoding ?: error("'pubKeyEncoding' not specified"),
-                *signature?.serialize() ?: error("'signature' not specified"))
+                *signature?.serialize() ?: error("'signature' not specified")
+            )
     }
 
     fun numSignatures(): Int {

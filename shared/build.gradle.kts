@@ -50,6 +50,8 @@ kotlin {
     compilations["main"].defaultSourceSet {
       dependencies {
         api(kotlin("stdlib-js"))
+        implementation(npm("bn.js", "4.11.6" ))
+        implementation(npm("elliptic", "6.5.2" ))
       }
     }
     compilations["test"].defaultSourceSet {
