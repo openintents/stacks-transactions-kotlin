@@ -6,6 +6,7 @@ import org.komputing.kbignumbers.biginteger.extensions.toHexStringZeroPadded
 import org.komputing.khex.extensions.hexToByteArray
 import org.komputing.khex.extensions.toNoPrefixHexString
 import org.openintents.blockstack.stackstransactions.ClarityValue
+import org.openintents.blockstack.stackstransactions.serializeCV
 
 open class Payload(
   val payloadType: PayloadType?,
@@ -27,6 +28,7 @@ open class Payload(
   val coinbaseBuffer: ByteArray? = null
 
 ) : StacksMessageCodec {
+  @OptIn(ExperimentalStdlibApi::class)
   override fun serialize(): ByteArray {
     if (payloadType == null) {
       error("'payloadType' not specified")
@@ -62,6 +64,42 @@ open class Payload(
           payloadType.type,
           *contractName.serialize(),
           *codeBody.serialize()
+        )
+      }
+
+      PayloadType.ContractCall -> {
+        if (this.contractAddress == null) {
+          notSpecifiedError("contractAddress")
+        }
+        if (this.contractName == null) {
+          notSpecifiedError("contractName")
+        }
+        if (this.functionName == null) {
+          notSpecifiedError("functionName")
+        }
+        if (this.functionArgs == null) {
+          notSpecifiedError("functionArgs")
+        }
+
+        val argsBytes = functionArgs.map{ serializeCV(it)}
+        val numberOfBytes = argsBytes.fold(0) {
+            sum, it -> sum + it.size
+        }
+
+        val functionArgsBytes = ByteArray(numberOfBytes)
+        var offset = 0
+        for (arg in argsBytes ) {
+          arg.copyInto(functionArgsBytes, offset)
+          offset += arg.size
+        }
+
+        return byteArrayOf(
+          payloadType.type,
+          *contractAddress.serialize(),
+          *contractName.serialize(),
+          *functionName.serialize(),
+          *intToHexString(functionArgs.size, 4).hexToByteArray(),
+          *functionArgsBytes
         )
       }
 

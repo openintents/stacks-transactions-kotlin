@@ -1,6 +1,7 @@
 package org.blockstack.android.stackstransactions.message
 
 import org.blockstack.android.stackstransactions.message.Constants.MAX_STRING_LENGTH_BYTES
+import org.komputing.kbignumbers.biginteger.BigInteger
 import org.komputing.khex.extensions.hexToByteArray
 import org.komputing.khex.extensions.toHexString
 import org.komputing.khex.extensions.toNoPrefixHexString
@@ -33,6 +34,10 @@ open class LengthPrefixedString(val content:String? = null, val lengthPrefixByte
 
 fun intToHexString(value: Int, lengthBytes: Int): String {
     return value.toString(16).padStart(lengthBytes * 2, '0')
+}
+
+fun BigInteger.toZeroPaddedHexString(lengthBytes: Int): String {
+    return toString(16).padStart(lengthBytes * 2, '0')
 }
 
 @OptIn(ExperimentalStdlibApi::class)

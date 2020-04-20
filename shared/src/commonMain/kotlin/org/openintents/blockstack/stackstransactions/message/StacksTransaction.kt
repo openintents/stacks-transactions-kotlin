@@ -1,6 +1,7 @@
 package org.blockstack.android.stackstransactions.message
 
 import org.komputing.khex.extensions.hexToByteArray
+import org.komputing.khex.extensions.toNoPrefixHexString
 import org.openintents.blockstack.stackstransactions.signature.PrivateKey
 
 class StacksTransaction(val version: TransactionVersion?,
@@ -56,12 +57,14 @@ class StacksTransaction(val version: TransactionVersion?,
         if (auth == null) {
             throw notSpecifiedError("auth")
         }
-        auth.intoInitialSighashAuth()
-        return txId()
+        val cleanTx = StacksTransaction(version, chainId,auth.intoInitialSighashAuth(), payload, postConditionMode, postConditions )
+        return cleanTx.txId()
     }
 
     private fun txId(): String {
         val serialized = serialize()
+        println(serialized.toNoPrefixHexString())
+        println(txIdFromData(serialized))
         return txIdFromData(serialized)
     }
 

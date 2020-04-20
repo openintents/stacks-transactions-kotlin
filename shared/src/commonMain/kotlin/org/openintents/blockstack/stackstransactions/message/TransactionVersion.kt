@@ -153,7 +153,7 @@ enum class AssetType(type: Int) {
  * Type IDs corresponding to each of the Clarity value types as described here:
  * {@link https://github.com/blockstack/blockstack-core/blob/sip/sip-005/sip/sip-005-blocks-and-transactions.md#clarity-value-representation}
  */
-enum class ClarityType(type: Byte) {
+enum class ClarityType(val type: Byte) {
     Int(0x00),
     UInt(0x01),
     Buffer(0x02),

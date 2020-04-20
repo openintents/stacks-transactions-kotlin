@@ -69,3 +69,19 @@ open class PostCondition(val postConditionType: PostConditionType?,
 
 class STXPostCondition(principal: Principal, conditionCode: FungibleConditionCode, amount:BigInteger)
     : PostCondition(PostConditionType.STX, principal, conditionCode, null, null, amount)
+
+
+class FungiblePostCondition(
+    principal: Principal,
+    conditionCode: FungibleConditionCode,
+    amount: BigInteger,
+    assetInfo: AssetInfo
+) :  PostCondition(PostConditionType.Fungible, principal, conditionCode, assetInfo, null, amount)
+
+
+class NonFungiblePostCondition(
+    principal: Principal,
+    conditionCode: NonFungibleConditionCode,
+    assetInfo: AssetInfo,
+    tokenAssetName: String
+) :  PostCondition(PostConditionType.NonFungible, principal, conditionCode, assetInfo, LengthPrefixedString(tokenAssetName), null)
