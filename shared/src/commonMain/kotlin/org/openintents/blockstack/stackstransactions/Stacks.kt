@@ -114,7 +114,8 @@ object Stacks {
       options.version
         ?: TransactionVersion.Mainnet,
       options.postConditionMode
-        ?: PostConditionMode.Deny
+        ?: PostConditionMode.Deny,
+      options.postConditions
     )
 
     val payload = ContractCallPayload(
