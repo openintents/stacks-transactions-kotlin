@@ -10,12 +10,14 @@ fun BigInteger.toHexStringZeroPadded(size: Int, withPrefix: Boolean = true): Str
   val length = result.length
   if (length > size) {
     throw UnsupportedOperationException("Value $result is larger then length $size")
-  } else if (signum() < 0) {
-    throw UnsupportedOperationException("Value cannot be negative")
   }
 
   if (length < size) {
-    result = "0".repeat(size - length) + result
+    if (signum() < 0) {
+      result = "f".repeat(size - length) + result
+    } else {
+      result = "0".repeat(size - length) + result
+    }
   }
 
   return if (withPrefix) {

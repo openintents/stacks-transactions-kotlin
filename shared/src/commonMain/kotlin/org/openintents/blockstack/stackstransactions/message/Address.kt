@@ -6,8 +6,8 @@ import org.komputing.khex.extensions.hexToByteArray
 import org.komputing.khex.extensions.toNoPrefixHexString
 import org.openintents.c32checksum.C32Checksum
 
-data class Address(var version: AddressVersion?,
-                   var data: String?) : StacksMessageCodec {
+data class Address(val version: AddressVersion?,
+                   val data: String?) : StacksMessageCodec {
 
     override fun serialize(): ByteArray {
         if (version == null) {
@@ -16,7 +16,9 @@ data class Address(var version: AddressVersion?,
         if (data == null) {
             throw Error("'data' not specified")
         }
-        return byteArrayOf(version!!.version, *data!!.hexToByteArray())
+        val paddedData = data.padEnd(20 * 2, '0')
+        return byteArrayOf(version.version, *paddedData
+            .hexToByteArray())
     }
 
     companion object {
@@ -43,7 +45,7 @@ data class Address(var version: AddressVersion?,
 
 private fun c32addressDecode(c32Address: String): AddressData {
     if (c32Address.length <= 5) {
-        throw Error("Invalid c32 address: invalid length");
+        throw Error("Invalid c32 address: length smaller than 6");
     }
     val normalized = c32Address.substring(1).toUpperCase().replace('O', '0')
             .replace('L', '1')

@@ -81,6 +81,9 @@ enum class AddressHashMode(val mode: Byte) {
     /** MultiSigHashMode - hash160(segwit-program-00(public-keys))), same as bitcoin's p2sh-p2wsh */
     SerializeP2WSH(0x03);
 
+    fun singleSig() = this == SerializeP2PKH ||
+                this == SerializeP2WPKH
+
     companion object {
         private val values = values()
         fun getByValue(mode: Byte) = values.firstOrNull { it.mode == mode }

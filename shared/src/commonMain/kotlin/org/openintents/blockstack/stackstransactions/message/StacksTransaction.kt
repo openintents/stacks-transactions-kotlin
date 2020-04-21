@@ -63,8 +63,6 @@ class StacksTransaction(val version: TransactionVersion?,
 
     private fun txId(): String {
         val serialized = serialize()
-        println(serialized.toNoPrefixHexString())
-        println(txIdFromData(serialized))
         return txIdFromData(serialized)
     }
 

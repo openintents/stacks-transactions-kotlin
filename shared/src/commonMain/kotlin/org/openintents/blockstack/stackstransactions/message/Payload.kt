@@ -176,9 +176,17 @@ class MemoString(val content: String? = null) : StacksMessageCodec {
     @OptIn(ExperimentalStdlibApi::class)
     fun deserialize(reader: ByteArrayReader): MemoString {
       val content = reader.read(Constants.MEMO_MAX_LENGTH_BYTES).decodeToString()
+        .dropLastHexZeros()
       return MemoString(content)
     }
   }
+}
+
+private fun String.dropLastHexZeros():String {
+  for (index in lastIndex downTo 0)
+    if (index % 2 == 0 && this[index] != 0.toChar())
+      return substring(0, index + 1)
+  return ""
 }
 
 class CodeBodyString(content: String? = null) : LengthPrefixedString(content, 4, 100000)

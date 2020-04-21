@@ -16,7 +16,7 @@ class MessageSignature(val signature: String?) : StacksMessageCodec {
     companion object {
         fun deserialize(reader: ByteArrayReader): MessageSignature {
             return MessageSignature(
-                reader.read(Constants.RECOVERABLE_ECDSA_SIG_LENGTH_BYTES).toNoPrefixHexString()
+                reader.read(RECOVERABLE_ECDSA_SIG_LENGTH_BYTES).toNoPrefixHexString()
             )
         }
 
@@ -40,7 +40,7 @@ open class SpendingCondition(
     override fun serialize(): ByteArray {
         return byteArrayOf(
             addressHashMode?.mode ?: error("'addressHashMode' not specified"),
-            *signerAddress?.data?.hexToByteArray() ?: error("'signerAddress' not specified"),
+            *signerAddress?.data?.padEnd(20 * 2, '0')?.hexToByteArray() ?: error("'signerAddress' not specified"),
             *nonce?.toZeroPaddedHexString(8)?.hexToByteArray() ?: error("'nonce' not specified"),
             *feeRate?.toZeroPaddedHexString(8)?.hexToByteArray()
                 ?: error("'feeRate' not specified"),
@@ -63,17 +63,19 @@ open class SpendingCondition(
         )
     }
 
-    fun singleSig(): Boolean = this.addressHashMode === AddressHashMode.SerializeP2PKH ||
-            this.addressHashMode === AddressHashMode.SerializeP2WPKH
+    fun singleSig(): Boolean = this.addressHashMode?.singleSig() ?: notSpecifiedError("addressHashMode")
+
 
     companion object {
         @OptIn(ExperimentalStdlibApi::class)
         fun deserialize(reader: ByteArrayReader): SpendingCondition {
+            val addressHashMode = AddressHashMode.getByValue(reader.readByte()) ?:error("Invalid address hash mode")
             return SpendingCondition(
-                AddressHashMode.getByValue(reader.readByte()),
-                Address(reader),
-                BigInteger(reader.read(8).decodeToString()),
-                BigInteger(reader.read(8).decodeToString()),
+                addressHashMode,
+                Address(if (addressHashMode.singleSig()) AddressVersion.MainnetSingleSig else AddressVersion.MainnetMultiSig,
+                    reader.read(20).toNoPrefixHexString()),
+                BigInteger(1, reader.read(8)),
+                BigInteger(1, reader.read(8)),
                 PubKeyEncoding.getByValue(reader.readByte()),
                 MessageSignature.deserialize(reader),
                 null
