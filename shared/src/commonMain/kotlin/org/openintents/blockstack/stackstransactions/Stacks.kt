@@ -9,20 +9,20 @@ object Stacks {
     fun makeSTXTokenTransfer(
         receiverAddress: String,
         amount: BigInteger,
-        feeRate: BigInteger,
         senderKey: String,
         options: TokenTransferOptions
     ): StacksTransaction {
 
+        val fee = options.fee ?: BigInteger.ZERO
         val nonce = options.nonce
             ?: BigInteger.ZERO
-        val version = options.network?.version
-            ?: TransactionVersion.Mainnet
-        val memo = options.memo ?: ""
+        val network = options.network ?: StacksNetwork.mainnet
+        val anchorMode = options.anchorMode ?: AnchorMode.Any
         val postConditionMode = options.postConditionMode
             ?: PostConditionMode.Deny
+        val memo = options.memo ?: ""
+
         val postConditions = options.postConditions
-        val chainId = options.network?.chainId ?: ChainId.MainNet
 
         val payload = TokenTransferPayload(receiverAddress, amount, memo)
 
@@ -34,12 +34,12 @@ object Stacks {
             addressHashMode,
             privKey.toPublicKeyString(),
             nonce,
-            feeRate
+            fee
         )
         val authorization = StandardAuthorization(spendingCondition)
         val transaction = StacksTransaction(
-            version, chainId.id, authorization, payload,
-            postConditionMode, LengthPrefixedList(arrayListOf())
+            network.version, authorization, payload, postConditionMode,
+            LengthPrefixedList(arrayListOf()), anchorMode, network.chainId.id
         )
 
         postConditions?.forEach {
@@ -55,7 +55,6 @@ object Stacks {
     fun makeSmartContractDeploy(
         contractName: String,
         codeBody: String,
-        feeRate: BigInteger,
         senderKey: String,
         options: ContractDeployOptions
     ): StacksTransaction {
@@ -75,13 +74,13 @@ object Stacks {
             addressHashMode,
             privKey.toPublicKeyString(),
             nonce,
-            feeRate
+            fee
         )
         val authorization = StandardAuthorization(spendingCondition)
 
         val transaction = StacksTransaction(
-            network.version, network.chainId.id, authorization, payload,
-            postConditionMode, LengthPrefixedList(arrayListOf())
+            network.version, authorization, payload, postConditionMode,
+            LengthPrefixedList(arrayListOf()), anchorMode, network.chainId.id
         )
 
         options.postConditions?.forEach {
@@ -99,14 +98,14 @@ object Stacks {
         contractName: String,
         functionName: String,
         functionArgs: Array<ClarityValue>,
-        feeRate: BigInteger,
         senderKey: String,
         options: ContractCallOptions
     ): StacksTransaction {
-
+        val fee = options.fee ?: BigInteger.ZERO
         val nonce = options.nonce ?: BigInteger.ZERO
         val network = options.network
             ?: StacksNetwork.mainnet
+        val anchorMode = options.anchorMode ?: AnchorMode.Any
         val postConditionMode = options.postConditionMode
             ?: PostConditionMode.Deny
 
@@ -126,14 +125,14 @@ object Stacks {
             addressHashMode,
             privKey.toPublicKeyString(),
             nonce,
-            feeRate
+            fee
         )
         val authorization = StandardAuthorization(spendingCondition)
 
 
         val transaction = StacksTransaction(
-            network.version, network.chainId.id, authorization, payload,
-            postConditionMode, LengthPrefixedList(arrayListOf())
+            network.version, authorization, payload, postConditionMode,
+            LengthPrefixedList(arrayListOf()), anchorMode, network.chainId.id
         )
 
         options.postConditions?.forEach {

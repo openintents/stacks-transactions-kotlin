@@ -21,7 +21,7 @@ import org.komputing.khex.extensions.hexToByteArray
 import org.komputing.khex.extensions.toNoPrefixHexString
 import java.net.URL
 
-const val STACKS_API_URL = "http://192.168.0.123:20443"
+const val STACKS_API_URL = "https://crashy-stacky.zone117x.com"
 const val TAG = "broadcast"
 
 @OptIn(ExperimentalStdlibApi::class)

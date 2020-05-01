@@ -22,7 +22,7 @@ internal abstract class StacksTest {
         )
 
         val transaction =
-            Stacks.makeSTXTokenTransfer(recipientAddress, amount, feeRate, secretKey, options)
+            Stacks.makeSTXTokenTransfer(recipientAddress, amount, secretKey, options)
 
         val serialized = transaction.serialize().toNoPrefixHexString()
 
@@ -51,7 +51,7 @@ internal abstract class StacksTest {
         )
 
         val transaction =
-            Stacks.makeSTXTokenTransfer(recipientAddress, amount, feeRate, secretKey, options)
+            Stacks.makeSTXTokenTransfer(recipientAddress, amount, secretKey, options)
 
         val serialized = transaction.serialize().toNoPrefixHexString()
 
@@ -89,7 +89,7 @@ internal abstract class StacksTest {
         )
 
         val transaction =
-            Stacks.makeSTXTokenTransfer(recipientAddress, amount, feeRate, secretKey, options)
+            Stacks.makeSTXTokenTransfer(recipientAddress, amount, secretKey, options)
 
         val serialized = transaction.serialize().toNoPrefixHexString()
 
@@ -180,11 +180,12 @@ internal abstract class StacksTest {
         val secretKey = "e494f188c2d35887531ba474c433b1e41fadd8eb824aca983447fd4bb8b277a801"
 
         val options = ContractDeployOptions(
+            fee = feeRate,
             network = StacksNetwork.testnet
         )
 
         val transaction =
-            Stacks.makeSmartContractDeploy(contractName, codeBody, feeRate, secretKey, options)
+            Stacks.makeSmartContractDeploy(contractName, codeBody, secretKey, options)
 
         val serialized = transaction.serialize().toNoPrefixHexString()
 
@@ -217,6 +218,7 @@ internal abstract class StacksTest {
         val feeRate = BigInteger.ZERO
 
         val options = ContractCallOptions(
+            fee = feeRate,
             nonce = BigInteger("1"),
             network = StacksNetwork.testnet
         )
@@ -226,7 +228,6 @@ internal abstract class StacksTest {
             contractName,
             functionName,
             arrayOf(buffer),
-            feeRate,
             secretKey,
             options
         )
@@ -301,6 +302,7 @@ internal abstract class StacksTest {
         )
 
         val options = ContractCallOptions(
+            fee = feeRate,
             nonce = BigInteger("1"),
             network= StacksNetwork.testnet,
             postConditions = postConditions,
@@ -312,7 +314,6 @@ internal abstract class StacksTest {
             contractName,
             functionName,
             arrayOf(buffer),
-            feeRate,
             secretKey,
             options
         )
@@ -351,6 +352,7 @@ internal abstract class StacksTest {
         val feeRate = BigInteger.ZERO
 
         val options = ContractCallOptions(
+            fee = feeRate,
             nonce = BigInteger("1"),
             network = StacksNetwork.testnet,
             postConditionMode = PostConditionMode.Allow
@@ -361,7 +363,6 @@ internal abstract class StacksTest {
             contractName,
             functionName,
             arrayOf(buffer),
-            feeRate,
             secretKey,
             options
         )

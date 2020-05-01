@@ -12,6 +12,7 @@ import kotlinx.coroutines.withContext
 import org.blockstack.android.stackstransactions.message.*
 import org.komputing.kbignumbers.biginteger.BigInteger
 import org.openintents.blockstack.stackstransactions.Stacks
+import org.openintents.blockstack.stackstransactions.StacksNetwork
 
 class MainActivity : AppCompatActivity() {
     val senderKey = "3af1c76f27c861d7a0f3e85543c0191dff8d8b8de6d27660aadb18b7f20400a901"
@@ -39,20 +40,20 @@ class MainActivity : AppCompatActivity() {
                 textinput_error.text = getString(R.string.invalid_address, e.localizedMessage)
                 return@setOnClickListener
             }
-
+            val amount = BigInteger.valueOf(amount.text.toString().toLong())
+            Log.d(TAG, "Amount ${amount.toString(10)}")
             GlobalScope.launch(Dispatchers.IO) {
-                val acc = getAccount(senderAddress)
-                account = acc
+                //val acc = getAccount(senderAddress)
+                //account = acc
                 val transaction = Stacks.makeSTXTokenTransfer(
                     receiver,
-                    BigInteger.valueOf(amount.text.toString().toLong()),
-                    BigInteger.valueOf(1),
+                    amount,
                     senderKey,
                     TokenTransferOptions(
+                        BigInteger.valueOf(180),
                         BigInteger.valueOf(nonce),
-                        TransactionVersion.Testnet,
-                        memo = "Sent from Android",
-                        chainId = ChainId.Testnet
+                        StacksNetwork.testnet,
+                        memo = "Sent from Android"
                     )
                 )
 

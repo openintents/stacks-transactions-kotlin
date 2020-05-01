@@ -1,29 +1,19 @@
 package org.blockstack.android.stackstransactions.message
 
 import org.komputing.khex.extensions.hexToByteArray
-import org.komputing.khex.extensions.toNoPrefixHexString
 import org.openintents.blockstack.stackstransactions.signature.PrivateKey
 
-class StacksTransaction(val version: TransactionVersion?,
-                        val chainId: String?,
-                        val auth: Authorization?,
-                        val payload: Payload?,
-                        val postConditionMode: PostConditionMode = PostConditionMode.Deny,
-                        val postConditions: LengthPrefixedList<PostCondition> = LengthPrefixedList(arrayListOf())): StacksMessageCodec {
-    val anchorMode: AnchorMode
-
-    init {
-        if (payload?.payloadType == PayloadType.TokenTransfer ||
-                payload?.payloadType == PayloadType.ContractCall ||
-                payload?.payloadType == PayloadType.SmartContract) {
-            anchorMode = AnchorMode.Any
-        } else if (payload?.payloadType == PayloadType.PoisonMicroblock ||
-                payload?.payloadType == PayloadType.Coinbase) {
-            anchorMode = AnchorMode.OnChainOnly
-        } else {
-            error("unexpected transaction payload type ${payload?.payloadType}")
-        }
-    }
+class StacksTransaction(
+    val version: TransactionVersion?,
+    val auth: Authorization?,
+    val payload: Payload?,
+    val postConditionMode: PostConditionMode = PostConditionMode.Deny,
+    val postConditions: LengthPrefixedList<PostCondition> = LengthPrefixedList(
+        arrayListOf()
+    ),
+    val anchorMode: AnchorMode = anchorModeFromPayload(payload),
+    val chainId: String?
+) : StacksMessageCodec {
 
     fun addPostCondition(postCondition: PostCondition) {
         postConditions.items.add(postCondition)
@@ -43,13 +33,13 @@ class StacksTransaction(val version: TransactionVersion?,
             notSpecifiedError("payload")
         }
         return byteArrayOf(
-                version.version,
-                *chainId.hexToByteArray(),
-                *auth.serialize(),
-                anchorMode.mode,
-                postConditionMode.mode,
-                *postConditions.serialize(),
-                *payload.serialize()
+            version.version,
+            *chainId.hexToByteArray(),
+            *auth.serialize(),
+            anchorMode.mode,
+            postConditionMode.mode,
+            *postConditions.serialize(),
+            *payload.serialize()
         )
     }
 
@@ -57,7 +47,15 @@ class StacksTransaction(val version: TransactionVersion?,
         if (auth == null) {
             throw notSpecifiedError("auth")
         }
-        val cleanTx = StacksTransaction(version, chainId,auth.intoInitialSighashAuth(), payload, postConditionMode, postConditions )
+        val cleanTx = StacksTransaction(
+            version,
+            auth.intoInitialSighashAuth(),
+            payload,
+            postConditionMode,
+            postConditions,
+            anchorMode,
+            chainId
+        )
         return cleanTx.txId()
     }
 
@@ -81,7 +79,12 @@ class StacksTransaction(val version: TransactionVersion?,
 
     }
 
-    private fun signAndAppend(spendingCondition: SpendingCondition, curSigHash: String, authType: AuthType, privKey: PrivateKey): String {
+    private fun signAndAppend(
+        spendingCondition: SpendingCondition,
+        curSigHash: String,
+        authType: AuthType,
+        privKey: PrivateKey
+    ): String {
         if (spendingCondition.feeRate == null) {
             throw  Error("\"condition.feeRate\" is undefined")
         }
@@ -90,11 +93,11 @@ class StacksTransaction(val version: TransactionVersion?,
         }
 
         val nextSignatureData = SpendingCondition.nextSignature(
-                curSigHash,
-                authType,
-                spendingCondition.feeRate,
-                spendingCondition.nonce,
-                privKey
+            curSigHash,
+            authType,
+            spendingCondition.feeRate,
+            spendingCondition.nonce,
+            privKey
         )
         if (spendingCondition.singleSig()) {
             spendingCondition.signature = nextSignatureData.signature
@@ -107,4 +110,18 @@ class StacksTransaction(val version: TransactionVersion?,
 
 }
 
-expect suspend fun StacksTransaction.broadcast():String
+private fun anchorModeFromPayload(payload: Payload?): AnchorMode {
+    return when (payload?.payloadType) {
+        PayloadType.TokenTransfer, PayloadType.ContractCall, PayloadType.SmartContract -> {
+            AnchorMode.Any
+        }
+        PayloadType.PoisonMicroblock, PayloadType.Coinbase -> {
+            AnchorMode.OnChainOnly
+        }
+        null -> {
+            error("unexpected transaction payload type ${payload?.payloadType}")
+        }
+    }
+}
+
+expect suspend fun StacksTransaction.broadcast(): String
