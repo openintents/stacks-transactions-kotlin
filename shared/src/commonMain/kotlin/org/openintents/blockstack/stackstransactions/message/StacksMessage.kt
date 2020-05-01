@@ -1,5 +1,7 @@
 package org.blockstack.android.stackstransactions.message
 
+import org.komputing.khex.extensions.toNoPrefixHexString
+
 /**
  * By convention classes implementing StacksMessageCodes must have
  * a constructor taking a ByteArrayReader
@@ -23,5 +25,11 @@ data class ByteArrayReader (val byteArray: ByteArray, var index:Int) {
             index += count
         }
         return bytes
+    }
+
+    fun readUInt32BE(): Int {
+        val bytes = byteArray.sliceArray(index until index + 4)
+        index += 4
+        return bytes.toNoPrefixHexString().toInt(16)
     }
 }

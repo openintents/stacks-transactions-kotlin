@@ -1,41 +1,76 @@
 package co.touchlab.kampstarter.android
 
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import androidx.recyclerview.widget.LinearLayoutManager
-import co.touchlab.kampstarter.android.adapter.MainAdapter
-import co.touchlab.kampstarter.models.BreedModel
-import com.google.android.material.snackbar.Snackbar
+import android.util.Log
+import android.view.View
+import androidx.appcompat.app.AppCompatActivity
 import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import org.blockstack.android.stackstransactions.message.*
+import org.komputing.kbignumbers.biginteger.BigInteger
+import org.openintents.blockstack.stackstransactions.Stacks
 
 class MainActivity : AppCompatActivity() {
+    val senderKey = "3af1c76f27c861d7a0f3e85543c0191dff8d8b8de6d27660aadb18b7f20400a901"
+    val senderAddress = "ST218TF4VFT21C7WHF72EB434HD9D237161MBJYVD"
+    val nonce: Long = 0
+    var account: Account? = null
+
     companion object {
         val TAG = MainActivity::class.java.simpleName
     }
-    private lateinit var adapter: MainAdapter
-    private lateinit var model: BreedModel
 
+    @OptIn(ExperimentalStdlibApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        model = BreedModel(viewUpdate = { itemData ->
-            print(itemData)
-            adapter.submitList(itemData.allItems)
-        },errorUpdate = { errorMessage ->
-            Snackbar.make(breed_list, errorMessage, Snackbar.LENGTH_SHORT).show()
-        })
+        button.setOnClickListener {
+            textinput_error.text = ""
+            textinput_error.visibility = View.INVISIBLE
+            val receiver = recipient.text.toString()
+            try {
+                Address(receiver)
+            } catch (e: Exception) {
+                textinput_error.visibility = View.VISIBLE
+                textinput_error.text = getString(R.string.invalid_address, e.localizedMessage)
+                return@setOnClickListener
+            }
 
-        adapter = MainAdapter(model::updateBreedFavorite)
+            GlobalScope.launch(Dispatchers.IO) {
+                val acc = getAccount(senderAddress)
+                account = acc
+                val transaction = Stacks.makeSTXTokenTransfer(
+                    receiver,
+                    BigInteger.valueOf(amount.text.toString().toLong()),
+                    BigInteger.valueOf(1),
+                    senderKey,
+                    TokenTransferOptions(
+                        BigInteger.valueOf(nonce),
+                        TransactionVersion.Testnet,
+                        memo = "Sent from Android",
+                        chainId = ChainId.Testnet
+                    )
+                )
 
-        breed_list.adapter = adapter
-        breed_list.layoutManager = LinearLayoutManager(this)
+                try {
+                    val result =
+                        transaction.broadcast()
 
-        model.getBreedsFromNetwork()
-    }
+                    Log.d(TAG, result)
+                } catch (cause: Throwable) {
+                    withContext(Dispatchers.Main) {
+                        textinput_error.visibility = View.VISIBLE
+                        textinput_error.text =
+                            getString(R.string.invalid_address, cause.localizedMessage)
+                    }
+                    Log.e(TAG, "failed to broadcast", cause)
+                }
+            }
+        }
 
-    override fun onDestroy() {
-        super.onDestroy()
-        model.onDestroy()
     }
 }

@@ -14,7 +14,7 @@ open class Payload(
   val assetType: AssetType? = null,
   val assetInfo: AssetInfo? = null,
   val assetName: LengthPrefixedString? = null,
-  val recipientAddress: Address? = null,
+  val recipient: Principal? = null,
   val amount: BigInteger? = null,
   val memo: MemoString? = null,
 
@@ -36,7 +36,7 @@ open class Payload(
     when (payloadType) {
 
       PayloadType.TokenTransfer -> {
-        if (recipientAddress == null) {
+        if (recipient == null) {
           error("'recipientAddress' not specified")
         }
         if (amount == null) {
@@ -47,7 +47,7 @@ open class Payload(
         }
         return byteArrayOf(
           payloadType.type,
-          *recipientAddress.serialize(),
+          *recipient.serialize(),
           *amount.toHexStringZeroPadded(16, false).hexToByteArray(),
           *memo.serialize()
         )
@@ -115,7 +115,7 @@ open class Payload(
       val payloadType = PayloadType.getByValue(reader.readByte())
       return when (payloadType) {
         PayloadType.TokenTransfer -> {
-          val recipientAddress = Address(reader)
+          val recipientAddress = Principal(reader)
           val amount = BigInteger(reader.read(8).decodeToString())
           val memo = MemoString.deserialize(reader)
           TokenTransferPayload(recipientAddress, amount, memo)
@@ -128,12 +128,12 @@ open class Payload(
   }
 }
 
-class TokenTransferPayload(recipientAddress: Address, amount: BigInteger, memo: MemoString) :
+class TokenTransferPayload(recipient: Principal, amount: BigInteger, memo: MemoString) :
   Payload(
-    PayloadType.TokenTransfer, recipientAddress = recipientAddress, amount = amount, memo = memo
+    PayloadType.TokenTransfer, recipient = recipient, amount = amount, memo = memo
   ) {
   constructor(recipientAddress: String, amount: BigInteger, memo: String?) :
-    this(Address(recipientAddress), amount, MemoString(memo))
+    this(StandardPrincipal(Address(recipientAddress)), amount, MemoString(memo))
 }
 
 class SmartContractPayload(contractName: LengthPrefixedString, codeBody: CodeBodyString) :

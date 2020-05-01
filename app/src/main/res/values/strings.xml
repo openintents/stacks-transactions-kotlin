@@ -1,3 +1,11 @@
 <resources>
-    <string name="app_name">KaMP Kit</string>
+    <string name="app_name">Stacks Testnet Transfer Demo</string>
+    <string name="recipient">Address of Recipient</string>
+    <string name="instructions">Send</string>
+    <string name="button">Send</string>
+    <string name="invalid_address">Invalid address (%1$s)</string>
+    <string name="stacks_to">test STXs to</string>
+    <string name="default_amount">5000</string>
+    <string name="amount">Amount</string>
+    <string name="default_receiver">ST270EMD96BPJE79FPP8V457Y20W259HKR33ZMKWW</string>
 </resources>

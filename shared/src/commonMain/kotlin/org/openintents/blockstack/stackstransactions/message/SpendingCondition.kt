@@ -38,6 +38,7 @@ open class SpendingCondition(
 
     @OptIn(ExperimentalStdlibApi::class)
     override fun serialize(): ByteArray {
+        print(signerAddress)
         return byteArrayOf(
             addressHashMode?.mode ?: error("'addressHashMode' not specified"),
             *signerAddress?.data?.padEnd(20 * 2, '0')?.hexToByteArray() ?: error("'signerAddress' not specified"),
@@ -151,7 +152,7 @@ class SingleSigSpendingCondition(
     nonce: BigInteger?, feeRate: BigInteger
 ) : SpendingCondition(
     addressHashMode,
-    Address.fromPubKey(pubKey),
+    Address.fromPubKeys(AddressVersion.TestnetSingleSig, addressHashMode, 1, arrayOf(pubKey)),
     nonce,
     feeRate,
     PubKeyEncoding.Compressed,

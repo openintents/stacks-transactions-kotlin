@@ -4,18 +4,21 @@ import org.komputing.kbignumbers.biginteger.BigInteger
 import org.komputing.kbignumbers.biginteger.extensions.toHexStringZeroPadded
 import org.komputing.khex.extensions.hexToByteArray
 import org.komputing.khex.extensions.toHexString
+import org.openintents.blockstack.stackstransactions.BufferCV
+import org.openintents.blockstack.stackstransactions.deserializedCV
+import org.openintents.blockstack.stackstransactions.serializeCV
 
 open class PostCondition(val postConditionType: PostConditionType?,
                          val principal: Principal?,
                          val conditionCode: ConditionCode?,
                          val assetInfo: AssetInfo?,
-                         val assetName: LengthPrefixedString?,
+                         val assetName: BufferCV?,
                          val amount: BigInteger?) : StacksMessageCodec {
 
     override fun serialize(): ByteArray {
         return byteArrayOf(
                 postConditionType?.type ?: throw Error("PostCondition type not specified"),
-                * principal?.serialize() ?: throw Error("'principal' is undefined"),
+                * principal?.serializeWithPrefix() ?: throw Error("'principal' is undefined"),
                 * if (postConditionType == PostConditionType.Fungible ||
                         postConditionType == PostConditionType.NonFungible) {
                     assetInfo?.serialize()
@@ -23,8 +26,8 @@ open class PostCondition(val postConditionType: PostConditionType?,
                 } else {
                     ByteArray(0)
                 },
-                * if (postConditionType == PostConditionType.NonFungible) {
-                    assetName?.serialize()
+            * if (postConditionType == PostConditionType.NonFungible) {
+                    assetName?.let { serializeCV(it) }
                             ?: throw Error("'assetName' is undefined, but required for type ${postConditionType.name}")
                 } else {
                     ByteArray(0)
@@ -51,7 +54,7 @@ open class PostCondition(val postConditionType: PostConditionType?,
                 null
             }
             val assetName = if (postConditionType == PostConditionType.NonFungible) {
-                LengthPrefixedString(reader, 1)
+                deserializedCV(reader) as BufferCV
             } else {
                 null
             }
@@ -79,9 +82,10 @@ class FungiblePostCondition(
 ) :  PostCondition(PostConditionType.Fungible, principal, conditionCode, assetInfo, null, amount)
 
 
+@OptIn(ExperimentalStdlibApi::class)
 class NonFungiblePostCondition(
     principal: Principal,
     conditionCode: NonFungibleConditionCode,
     assetInfo: AssetInfo,
     tokenAssetName: String
-) :  PostCondition(PostConditionType.NonFungible, principal, conditionCode, assetInfo, LengthPrefixedString(tokenAssetName), null)
+) :  PostCondition(PostConditionType.NonFungible, principal, conditionCode, assetInfo, BufferCV(tokenAssetName.encodeToByteArray()), null)

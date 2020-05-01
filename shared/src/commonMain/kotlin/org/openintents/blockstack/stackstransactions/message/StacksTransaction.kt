@@ -104,4 +104,7 @@ class StacksTransaction(val version: TransactionVersion?,
 
         return nextSignatureData.hash
     }
+
 }
+
+expect suspend fun StacksTransaction.broadcast():String

@@ -194,3 +194,18 @@ fun serializeCV(value: ClarityValue): ByteArray {
         }
     }
 }
+
+fun deserializedCV(reader: ByteArrayReader): ClarityValue {
+    val type = reader.readByte()
+    when (type) {
+        ClarityType.Buffer.type -> {
+            val bufferLength = reader.readUInt32BE()
+            return BufferCV(reader.read(bufferLength))
+
+        }
+        else -> {
+            error("Not yet implemented")
+        }
+    }
+
+}

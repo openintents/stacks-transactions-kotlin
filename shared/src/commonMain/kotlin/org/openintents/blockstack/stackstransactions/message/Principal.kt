@@ -5,13 +5,23 @@ open class Principal(val principalType: PrincipalType?,
                      val contractName: LengthPrefixedString) : StacksMessageCodec {
 
     override fun serialize(): ByteArray {
+        return serialize(true)
+    }
+
+    fun serializeWithPrefix(): ByteArray {
+        return serialize(false)
+    }
+
+    fun serialize(asType:Boolean):ByteArray {
         if (principalType == null) {
             throw Error("'principalType' not defined")
         }
         return if (principalType == PrincipalType.Contract) {
-            byteArrayOf(principalType.type, *address.serialize(), *contractName.serialize())
+            val prefix = if (asType) ClarityType.PrincipalContract.type else principalType.type
+            byteArrayOf(prefix, *address.serialize(), *contractName.serialize())
         } else {
-            byteArrayOf( principalType.type, *address.serialize())
+            val prefix = if (asType) ClarityType.PrincipalStandard.type else principalType.type
+            byteArrayOf( prefix, *address.serialize())
         }
     }
 

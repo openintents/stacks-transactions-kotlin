@@ -6,151 +6,143 @@ import org.komputing.kbignumbers.biginteger.BigInteger
 import org.openintents.blockstack.stackstransactions.signature.PrivateKey
 
 object Stacks {
-  fun makeSTXTokenTransfer(
-    recipientAddress: String,
-    amount: BigInteger,
-    feeRate: BigInteger,
-    senderKey: String,
-    options: TokenTransferOptions
-  ): StacksTransaction {
+    fun makeSTXTokenTransfer(
+        receiverAddress: String,
+        amount: BigInteger,
+        feeRate: BigInteger,
+        senderKey: String,
+        options: TokenTransferOptions
+    ): StacksTransaction {
 
-    val normalizedOptions = TokenTransferOptions(
-      options.nonce
-        ?: BigInteger.ZERO,
-      options.version
-        ?: TransactionVersion.Mainnet,
-      options.memo ?: "",
-      options.postConditionMode
-        ?: PostConditionMode.Deny,
-      options.postConditions
-    )
+        val nonce = options.nonce
+            ?: BigInteger.ZERO
+        val version = options.network?.version
+            ?: TransactionVersion.Mainnet
+        val memo = options.memo ?: ""
+        val postConditionMode = options.postConditionMode
+            ?: PostConditionMode.Deny
+        val postConditions = options.postConditions
+        val chainId = options.network?.chainId ?: ChainId.MainNet
 
-    val payload = TokenTransferPayload(recipientAddress, amount, normalizedOptions.memo)
+        val payload = TokenTransferPayload(receiverAddress, amount, memo)
 
-    val addressHashMode = AddressHashMode.SerializeP2PKH
-    val privKey =
-        PrivateKey(
-            senderKey.let { if (it.length == 66) it.substring(0, 64) else it })
-    val spendingCondition = SingleSigSpendingCondition(
-      addressHashMode,
-      privKey.toPublicKeyString(),
-      normalizedOptions.nonce,
-      feeRate
-    )
-    val authorization = StandardAuthorization(spendingCondition)
+        val addressHashMode = AddressHashMode.SerializeP2PKH
+        println(senderKey)
+        val privKey =
+            PrivateKey.fromString(senderKey)
+        val spendingCondition = SingleSigSpendingCondition(
+            addressHashMode,
+            privKey.toPublicKeyString(),
+            nonce,
+            feeRate
+        )
+        val authorization = StandardAuthorization(spendingCondition)
+        val transaction = StacksTransaction(
+            version, chainId.id, authorization, payload,
+            postConditionMode, LengthPrefixedList(arrayListOf())
+        )
 
-    val transaction = StacksTransaction(
-      normalizedOptions.version!!, Constants.DEFAULT_CHAIN_ID, authorization, payload,
-      normalizedOptions.postConditionMode!!, LengthPrefixedList(arrayListOf())
-    )
+        postConditions?.forEach {
+            transaction.addPostCondition(it)
+        }
 
-    normalizedOptions.postConditions?.forEach {
-      transaction.addPostCondition(it)
+        val signer = TransactionSigner(transaction)
+        signer.signOrigin(privKey)
+
+        return transaction
     }
 
-    val signer = TransactionSigner(transaction)
-    signer.signOrigin(privKey)
-
-    return transaction
-  }
-
-  fun makeSmartContractDeploy(
-    contractName: String,
-    codeBody: String,
-    feeRate: BigInteger,
-    senderKey: String,
-    options: ContractDeployOptions
-  ): StacksTransaction {
-    val normalizedOptions = ContractDeployOptions(
-      options.nonce ?: BigInteger.ZERO,
-      options.version
-        ?: TransactionVersion.Mainnet,
-      options.postConditionMode
-        ?: PostConditionMode.Deny
-    )
-
-    var payload = SmartContractPayload(contractName, codeBody)
-
-    val addressHashMode = AddressHashMode.SerializeP2PKH
-    val privKey =
-        PrivateKey(
-            senderKey.let { if (it.length == 66) it.substring(0, 64) else it })
-    val spendingCondition = SingleSigSpendingCondition(
-      addressHashMode,
-      privKey.toPublicKeyString(),
-      normalizedOptions.nonce,
-      feeRate
-    )
-    val authorization = StandardAuthorization(spendingCondition)
+    fun makeSmartContractDeploy(
+        contractName: String,
+        codeBody: String,
+        feeRate: BigInteger,
+        senderKey: String,
+        options: ContractDeployOptions
+    ): StacksTransaction {
+        val fee = options.fee ?: BigInteger.ZERO
+        val nonce = options.nonce ?: BigInteger.ZERO
+        val network = options.network ?: StacksNetwork.mainnet
+        val anchorMode = options.anchorMode ?: AnchorMode.Any
+        val postConditionMode = options.postConditionMode
+            ?: PostConditionMode.Deny
 
 
-    val transaction = StacksTransaction(
-      normalizedOptions.version!!, Constants.DEFAULT_CHAIN_ID, authorization, payload,
-      normalizedOptions.postConditionMode!!, LengthPrefixedList(arrayListOf())
-    )
+        val payload = SmartContractPayload(contractName, codeBody)
 
-    normalizedOptions.postConditions?.forEach {
-      transaction.addPostCondition(it)
+        val addressHashMode = AddressHashMode.SerializeP2PKH
+        val privKey = PrivateKey.fromString(senderKey)
+        val spendingCondition = SingleSigSpendingCondition(
+            addressHashMode,
+            privKey.toPublicKeyString(),
+            nonce,
+            feeRate
+        )
+        val authorization = StandardAuthorization(spendingCondition)
+
+        val transaction = StacksTransaction(
+            network.version, network.chainId.id, authorization, payload,
+            postConditionMode, LengthPrefixedList(arrayListOf())
+        )
+
+        options.postConditions?.forEach {
+            transaction.addPostCondition(it)
+        }
+
+        val signer = TransactionSigner(transaction)
+        signer.signOrigin(privKey)
+
+        return transaction
     }
 
-    val signer = TransactionSigner(transaction)
-    signer.signOrigin(privKey)
+    fun makeContractCall(
+        contractAddress: String,
+        contractName: String,
+        functionName: String,
+        functionArgs: Array<ClarityValue>,
+        feeRate: BigInteger,
+        senderKey: String,
+        options: ContractCallOptions
+    ): StacksTransaction {
 
-    return transaction
-  }
-
-  fun makeContractCall(
-    contractAddress: String,
-    contractName: String,
-    functionName: String,
-    functionArgs: Array<ClarityValue>,
-    feeRate: BigInteger,
-    senderKey: String,
-    options: ContractCallOptions
-  ): StacksTransaction {
-
-    val normalizedOptions = ContractCallOptions(
-      options.nonce ?: BigInteger.ZERO,
-      options.version
-        ?: TransactionVersion.Mainnet,
-      options.postConditionMode
-        ?: PostConditionMode.Deny,
-      options.postConditions
-    )
-
-    val payload = ContractCallPayload(
-      contractAddress,
-      contractName,
-      functionName,
-      functionArgs
-    )
+        val nonce = options.nonce ?: BigInteger.ZERO
+        val network = options.network
+            ?: StacksNetwork.mainnet
+        val postConditionMode = options.postConditionMode
+            ?: PostConditionMode.Deny
 
 
-    val addressHashMode = AddressHashMode.SerializeP2PKH
-    val privKey =
-        PrivateKey(
-            senderKey.let { if (it.length == 66) it.substring(0, 64) else it })
-    val spendingCondition = SingleSigSpendingCondition(
-      addressHashMode,
-      privKey.toPublicKeyString(),
-      normalizedOptions.nonce,
-      feeRate
-    )
-    val authorization = StandardAuthorization(spendingCondition)
+        val payload = ContractCallPayload(
+            contractAddress,
+            contractName,
+            functionName,
+            functionArgs
+        )
 
 
-    val transaction = StacksTransaction(
-      normalizedOptions.version!!, Constants.DEFAULT_CHAIN_ID, authorization, payload,
-      normalizedOptions.postConditionMode!!, LengthPrefixedList(arrayListOf())
-    )
+        val addressHashMode = AddressHashMode.SerializeP2PKH
+        val privKey =
+            PrivateKey.fromString(senderKey)
+        val spendingCondition = SingleSigSpendingCondition(
+            addressHashMode,
+            privKey.toPublicKeyString(),
+            nonce,
+            feeRate
+        )
+        val authorization = StandardAuthorization(spendingCondition)
 
-    normalizedOptions.postConditions?.forEach {
-      transaction.addPostCondition(it)
+
+        val transaction = StacksTransaction(
+            network.version, network.chainId.id, authorization, payload,
+            postConditionMode, LengthPrefixedList(arrayListOf())
+        )
+
+        options.postConditions?.forEach {
+            transaction.addPostCondition(it)
+        }
+
+        val signer = TransactionSigner(transaction)
+        signer.signOrigin(privKey)
+
+        return transaction
     }
-
-    val signer = TransactionSigner(transaction)
-    signer.signOrigin(privKey)
-
-    return transaction
-  }
 }

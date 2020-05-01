@@ -1,33 +1,25 @@
 package org.openintents.blockstack.stackstransactions.signature
 
+import org.openintents.blockstack.stackstransactions.signature.PrivateKeyData.Companion.isCompressed
 
-
-actual class PrivateKey actual constructor(key: String) {
-  private var compressed: Boolean
-  val ec:dynamic
-  val keyPair:dynamic
-
-  init {
-    if (key.length == 66) {
-      if (!key.endsWith("01")) {
-        throw error(
-                "Improperly formatted private-key hex string. 66-length hex usually " +
-                        "indicates compressed key, but last byte must be == 1"
-                );
-      }
-      compressed = true;
-    } else if (key.length == 64) {
-      compressed = false;
-    } else {
-      throw error("invalid key string")
-    }
-    ec = js("new EC('secp256k1')")
-    keyPair = ec.keyFromPrivate(key, "hex")
-    println(keyPair)
-  }
+actual class PrivateKey(
+  val ec: dynamic,
+  val keyPair: dynamic,
+  val privateKeyData: PrivateKeyData
+) {
 
   actual fun toPublicKeyString(): String {
-    return keyPair.getPublic(compressed, "hex") as String
+    return keyPair.getPublic(privateKeyData.compressed, "hex") as String
+  }
+
+  actual companion object {
+    actual fun fromString(key: String): PrivateKey {
+val compressed = org.blockstack.android.stackstransactions.message.isCompressed(key)
+      val ec = js("new EC('secp256k1')")
+      val keyPair = ec.keyFromPrivate(key, "hex")
+      println(keyPair)
+      return PrivateKey(ec, keyPair, PrivateKeyData(key, compressed))
+    }
   }
 }
 

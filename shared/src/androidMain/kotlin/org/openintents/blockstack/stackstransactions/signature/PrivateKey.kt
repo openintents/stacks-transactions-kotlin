@@ -3,12 +3,19 @@ package org.openintents.blockstack.stackstransactions.signature
 import org.kethereum.crypto.getCompressedPublicKey
 import org.kethereum.crypto.toECKeyPair
 import org.komputing.khex.extensions.toNoPrefixHexString
+import org.openintents.blockstack.stackstransactions.signature.PrivateKeyData.Companion.isCompressed
 
-actual class PrivateKey actual constructor(key:String) {
-  val key: org.kethereum.model.PrivateKey = org.kethereum.model.PrivateKey(key)
+actual class PrivateKey (val key: org.kethereum.model.PrivateKey, val privateKeyData: PrivateKeyData) {
 
   actual fun toPublicKeyString(): String {
     return key.toECKeyPair().getCompressedPublicKey().toNoPrefixHexString()
+  }
+
+  actual companion object {
+    actual fun fromString(key:String):PrivateKey {
+      val compressed = isCompressed(key)
+      return PrivateKey(org.kethereum.model.PrivateKey(key.substring(0,64)), PrivateKeyData(key, compressed))
+    }
   }
 }
 
@@ -16,7 +23,9 @@ actual fun signMessageHash(
   hash: ByteArray,
   privateKey: PrivateKey
 ): String {
-  val signature = org.kethereum.crypto.signMessageHash(hash, privateKey.key.toECKeyPair(), true)
+  val key = privateKey.privateKeyData.key.substring(0, 64)
+  val keyPair = org.kethereum.model.PrivateKey(key).toECKeyPair()
+  val signature = org.kethereum.crypto.signMessageHash(hash, keyPair, true)
   val recoveryParam =  signature.v - java.math.BigInteger.valueOf(27L)
   val coordinateValueBytes = 32
   val signatureString = recoveryParam.toHexStringZeroPadded(2, false) +

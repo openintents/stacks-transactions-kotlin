@@ -34,6 +34,11 @@ enum class TransactionVersion(val version: Byte) {
     }
 }
 
+enum class ChainId(val id:String) {
+    MainNet("00000001"),
+    Testnet("80000000")
+}
+
 
 enum class PostConditionMode(val mode: Byte) {
     Allow(0x01),

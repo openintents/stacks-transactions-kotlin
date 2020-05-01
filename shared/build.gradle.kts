@@ -84,7 +84,6 @@ kotlin {
 
   sourceSets["commonMain"].dependencies {
     implementation(kotlin("stdlib-common", Versions.kotlin))
-    implementation("com.github.komputing:Khash:6fe00e9c11")
   }
 
   sourceSets["commonTest"].dependencies {
@@ -104,7 +103,12 @@ kotlin {
     implementation ("com.github.komputing.kethereum:crypto_api:${Versions.kethereum}")
     implementation ("com.github.komputing.kethereum:model:${Versions.kethereum}")
     implementation ("com.github.komputing.kethereum:crypto:${Versions.kethereum}")
+    implementation("com.github.komputing:khex:0.6")
+    implementation("com.github.komputing.khash:sha256:6fe00e9")
+    implementation("com.github.komputing.khash:sha512:6fe00e9")
+    implementation("com.github.komputing.khash:ripemd160:6fe00e9")
     implementation ("com.github.komputing.kethereum:crypto_impl_spongycastle:${Versions.kethereum}")
+    implementation(Deps.ktor.androidCore)
   }
 
   sourceSets["androidTest"].dependencies {
