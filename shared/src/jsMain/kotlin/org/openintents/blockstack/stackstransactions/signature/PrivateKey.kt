@@ -14,7 +14,7 @@ actual class PrivateKey(
 
   actual companion object {
     actual fun fromString(key: String): PrivateKey {
-val compressed = org.blockstack.android.stackstransactions.message.isCompressed(key)
+val compressed = isCompressed(key)
       val ec = js("new EC('secp256k1')")
       val keyPair = ec.keyFromPrivate(key, "hex")
       println(keyPair)

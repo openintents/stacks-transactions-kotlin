@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="co.touchlab.kampstarter.android">
+    package="org.openintents.speedspend">
     <uses-permission android:name="android.permission.INTERNET"/>
 
     <application
@@ -10,10 +10,10 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
-        android:name=".MainApp"
+        android:name="org.openintents.speedspend.MainApp"
         android:usesCleartextTraffic="true"
     >
-        <activity android:name=".MainActivity">
+        <activity android:name="org.openintents.speedspend.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

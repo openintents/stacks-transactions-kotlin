@@ -1,4 +1,4 @@
-package co.touchlab.kampstarter.android
+package org.openintents.speedspend
 
 import android.app.Application
 

@@ -10,9 +10,5 @@ import org.walleth.khex.toNoPrefixHexString
 actual fun hashP2PKH(hexInput: String): String {
     val sha256Result = hexInput.hexToByteArray().sha256()
     val h160 = sha256Result.digestRipemd160().toNoPrefixHexString()
-    println("***")
-    println(hexInput)
-    println(h160)
-    println("***")
     return h160
 }

@@ -58,8 +58,6 @@ data class Address(
             when (hashMode) {
                 AddressHashMode.SerializeP2PKH -> {
                     val hash = hashP2PKH(publicKeys[0])
-                    println(publicKeys[0])
-                    println(hash)
                     return Address(version, hash)
                 }
                 else ->

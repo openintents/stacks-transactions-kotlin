@@ -1,4 +1,4 @@
-package co.touchlab.kampstarter.android
+package org.openintents.speedspend
 
 import android.os.Bundle
 import android.util.Log
@@ -43,8 +43,8 @@ class MainActivity : AppCompatActivity() {
             val amount = BigInteger.valueOf(amount.text.toString().toLong())
             Log.d(TAG, "Amount ${amount.toString(10)}")
             GlobalScope.launch(Dispatchers.IO) {
-                //val acc = getAccount(senderAddress)
-                //account = acc
+                // val acc = getAccount(senderAddress)
+                // account = acc
                 val transaction = Stacks.makeSTXTokenTransfer(
                     receiver,
                     amount,

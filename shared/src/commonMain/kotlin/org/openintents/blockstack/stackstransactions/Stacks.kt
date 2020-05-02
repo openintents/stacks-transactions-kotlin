@@ -27,7 +27,6 @@ object Stacks {
         val payload = TokenTransferPayload(receiverAddress, amount, memo)
 
         val addressHashMode = AddressHashMode.SerializeP2PKH
-        println(senderKey)
         val privKey =
             PrivateKey.fromString(senderKey)
         val spendingCondition = SingleSigSpendingCondition(
